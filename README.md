@@ -22,11 +22,11 @@ The three files that needs to be downloaded are -
 
 Download these files and save it inside a folder. Name the folder anything you wish, but I have named it as **yolo-coco** just because of the fact that we are going to use the coco dataset objects.
 
-Create a folder images and have some pictures inside it to test the object detection.
+Create a folder **images** and have some pictures inside it to test the object detection.
 
 The **yolo.py** has the script to detect the objects in the images.
 
-Make sure you have numpy and opencv installed. If not install theem using pip
+Make sure you have numpy and opencv installed. If not install them using pip
 
 ```
 pip install numpy
@@ -45,7 +45,7 @@ You can use any image you want after the `--image` argument. Make sure you give 
 
 Press **q** to quit the window of the image showing object detection
 
-Feel free to star ⭐ this repo if you find this useful.
+Feel free to star ⭐ this repo if you find this useful and visit my [YouTube](https://www.youtube.com/channel/UCaOiKrS-R1Nuya0pxjQ68fA) channel if you have time.
 
 Thanks!
 
