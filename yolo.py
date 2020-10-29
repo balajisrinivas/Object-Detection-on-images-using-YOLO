@@ -1,20 +1,44 @@
-# import the necessary packages
+'''
+PRE-REQUISITES:
+
+Install the packages:
+
+I am using opencv 3.4.2, intall it by using the below command. Use the same opencv version
+pip install opencv-python==3.4.2
+
+We also need numpy
+pip install numpy
+
+Install argparse
+pip install argparse
+
+Download the files from the below URLs and have it inside the folder yolo-coco:
+
+https://github.com/pjreddie/darknet/blob/master/data/coco.names
+https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg
+https://pjreddie.com/media/files/yolov3.weights
+'''
+
+'''
+You can run the file by using 
+
+python yolo.py --image images/ipl.jpeg
+'''
+
+
+# importing the necessary packages
 import numpy as np
 import argparse
 import time
 import cv2
 import os
 
-print(np.__version__)
-print(cv2.__version__)
-print(argparse.__version__)
-
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True,
 	help="path to input image")
 ap.add_argument("-c", "--confidence", type=float, default=0.5,
-	help="minimum probability to filter weak detections")
+	help="minimum probability to filter weak detections, IoU threshold")
 ap.add_argument("-t", "--threshold", type=float, default=0.3,
 	help="threshold when applying non-maxima suppression")
 args = vars(ap.parse_args())
@@ -24,27 +48,23 @@ labelsPath = 'yolo-coco\\coco.names'
 LABELS = open(labelsPath).read().strip().split("\n")
 
 # initialize a list of colors to represent each possible class label
-np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
 	dtype="uint8")
 
-# derive the paths to the YOLO weights and model configuration
+# paths to the YOLO weights and model configuration
 weightsPath = 'yolo-coco\\yolov3.weights'
 configPath = 'yolo-coco\\yolov3.cfg'
 
 # load our YOLO object detector trained on COCO dataset (80 classes)
-print("[INFO] loading YOLO from disk...")
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 
 # load our input image and grab its spatial dimensions
 image = cv2.imread(args["image"])
 (H, W) = image.shape[:2]
-print(image.shape)
 
 # determine only the *output* layer names that we need from YOLO
 ln = net.getLayerNames()
 ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-print(ln)
 
 # construct a blob from the input image and then perform a forward
 # pass of the YOLO object detector, giving us our bounding boxes and
@@ -52,13 +72,7 @@ print(ln)
 blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
 	swapRB=True, crop=False)
 net.setInput(blob)
-start = time.time()
 layerOutputs = net.forward(ln)
-# [,frame,no of detections,[classid,class score,conf,x,y,h,w]
-end = time.time()
-
-# show timing information on YOLO
-print("[INFO] YOLO took {:.6f} seconds".format(end - start))
 
 # initialize our lists of detected bounding boxes, confidences, and
 # class IDs, respectively
@@ -97,8 +111,7 @@ for output in layerOutputs:
 			confidences.append(float(confidence))
 			classIDs.append(classID)
 
-# apply non-maxima suppression to suppress weak, overlapping bounding
-# boxes
+# apply non-maxima suppression to suppress weak, overlapping bounding boxes
 idxs = cv2.dnn.NMSBoxes(boxes, confidences, args["confidence"],
 	args["threshold"])
 
